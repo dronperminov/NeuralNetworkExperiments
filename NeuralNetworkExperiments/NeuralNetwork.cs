@@ -2,27 +2,29 @@
 
 namespace NeuralNetworkExperiments {
     class NeuralNetwork {
-        int inputsSize;
-        int outputsSize;
+        int inputs;
+        int outputs;
         int[] hiddenNeuronsSize; // массив количества нейронов в скрытых слоях
 
         NeuralLayer inputLayer;
         public readonly NeuralLayer[] hiddenLayers;
         public readonly NeuralLayer outputLayer;
 
-        public NeuralNetwork(int inputs, int outputs, int[] hiddenNeuronsSize, ActivationFunctionType activation) {
-            inputsSize = inputs;
-            outputsSize = outputs;
+        public NeuralNetwork(int inputs, int outputs, int[] hiddenNeuronsSize, ActivationFunctionType hiddenActivation = ActivationFunctionType.sigmoid, 
+            ActivationFunctionType outputActivation = ActivationFunctionType.noChange) {
+            this.inputs = inputs;
+            this.outputs = outputs;
             this.hiddenNeuronsSize = hiddenNeuronsSize;
 
-            inputLayer = new NeuralLayer(inputs, inputs, NeuralLayerType.input);
+            inputLayer = new NeuralLayer(inputs, inputs, NeuralLayerType.input, ActivationFunctionType.noChange);
 
-            this.hiddenLayers = new NeuralLayer[hiddenNeuronsSize.Length];
+            hiddenLayers = new NeuralLayer[hiddenNeuronsSize.Length];
+            hiddenLayers[0] = new NeuralLayer(inputs, hiddenNeuronsSize[0], NeuralLayerType.hidden, hiddenActivation);
 
-            for (int i = 0; i < hiddenNeuronsSize.Length; i++)
-                this.hiddenLayers[i] = new NeuralLayer(i == 0 ? inputs : hiddenNeuronsSize[i - 1], hiddenNeuronsSize[i], NeuralLayerType.hidden, activation);
+            for (int i = 1; i < hiddenNeuronsSize.Length; i++)
+                hiddenLayers[i] = new NeuralLayer(hiddenNeuronsSize[i - 1], hiddenNeuronsSize[i], NeuralLayerType.hidden, hiddenActivation);
 
-            outputLayer = new NeuralLayer(hiddenNeuronsSize[hiddenNeuronsSize.Length - 1], outputs, NeuralLayerType.output);
+            outputLayer = new NeuralLayer(hiddenNeuronsSize[hiddenNeuronsSize.Length - 1], outputs, NeuralLayerType.output, outputActivation);
         }
 
         public double[] GetOutputs(double[] signals) {
@@ -45,11 +47,11 @@ namespace NeuralNetworkExperiments {
                 error = 0;
 
                 for (int p = 0; p < learnInputData.Length; p++) {
-                    double[] outputs = GetOutputs(learnInputData[p]);
-                    double[] sigmas = new double[outputsSize];
+                    double[] results = GetOutputs(learnInputData[p]);
+                    double[] sigmas = new double[outputs];
 
-                    for (int i = 0; i < outputsSize; i++) {
-                        sigmas[i] = learnOutputData[p][i] - outputs[i];
+                    for (int i = 0; i < outputs; i++) {
+                        sigmas[i] = learnOutputData[p][i] - results[i];
                         error += sigmas[i] * sigmas[i];
                     }
 
@@ -76,7 +78,7 @@ namespace NeuralNetworkExperiments {
                         }
                     }
 
-                    for (int i = 0; i < outputsSize; i++) {
+                    for (int i = 0; i < outputs; i++) {
                         for (int j = 0; j < hiddenNeuronsSize[hiddenNeuronsSize.Length - 1]; j++) {
                             double weight = outputLayer.GetWeight(j, i);
                             double output = hiddenLayers[hiddenNeuronsSize.Length - 1].GetOutput(j);
@@ -86,7 +88,7 @@ namespace NeuralNetworkExperiments {
                 }
 
                 if (log && epoch % logInterval == 0) {
-                    Log(error, epoch);                    
+                    Log(Math.Sqrt(error), epoch);                    
                 }
 
                 epoch++;

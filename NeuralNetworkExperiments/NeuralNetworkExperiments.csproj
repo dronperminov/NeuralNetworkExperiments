@@ -44,7 +44,6 @@
   <ItemGroup>
     <Compile Include="NeuralLayer.cs" />
     <Compile Include="NeuralNetwork.cs" />
-    <Compile Include="Neuron.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

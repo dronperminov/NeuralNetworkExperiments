@@ -13,7 +13,7 @@ namespace NeuralNetworkExperiments {
             double eps = 1e-7;
             int maxEpochs = 100000;
 
-            int[] neurons = { 10, 10 };
+            int[] neurons = { 4, 2 };
 
             double[][] trainIn = {
                 new double[] { 0, 0 },
@@ -30,7 +30,7 @@ namespace NeuralNetworkExperiments {
             };
 
             NeuralNetwork network = new NeuralNetwork(inputs, outputs, neurons, ActivationFunctionType.sigmoid);
-            network.Train(trainIn, trainOut, alpha, eps, maxEpochs, true);
+            network.Train(trainIn, trainOut, alpha, eps, maxEpochs, true, 10);
 
             for (int i = 0; i < trainIn.Length; i++) {
                 double[] result = network.GetOutputs(trainIn[i]);
@@ -39,6 +39,7 @@ namespace NeuralNetworkExperiments {
             }
 
             Console.ReadKey();
+
         }
     }
 }
